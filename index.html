@@ -594,7 +594,7 @@
 
     <script>
         // 🔴 นำ Web App URL ที่ได้จาก Google Apps Script มาวางแทนที่บรรทัดนี้
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe-uewP7w_erElHLEPFho5xCv2ViX3n1eLIMklY0UVJaGkr4Dq1aBA_vA0L9CZlKt/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLma3r_07TuwpC9pGD2ec55651Q9yDbxfDFYVClIyeXluUmHSFtANfOLwHyu-G06tT/exec';
 
         const categories = {
             expense: [
@@ -622,35 +622,35 @@
             return found ? `${found.icon} ${found.name}` : catId;
         }
 
-        // ฟังก์ชันส่งข้อมูลไปยัง Google Sheet
-        function syncToGoogleSheet(txData, action = 'create') {
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('YOUR_SCRIPT_ID')) {
-                console.log('ยังไม่ได้ระบุ GOOGLE_SCRIPT_URL');
-                return;
-            }
+       // ฟังก์ชันส่งข้อมูลไปยัง Google Sheet (เวอร์ชันแก้ไขแล้ว)
+function syncToGoogleSheet(txData, action = 'create') {
+    if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === '') {
+        console.log('ยังไม่ได้ระบุ GOOGLE_SCRIPT_URL');
+        return;
+    }
 
-            const payload = {
-                action: action,
-                id: txData.id,
-                date: txData.date,
-                type: txData.type,
-                cat: txData.cat,
-                catName: getCategoryName(txData.type, txData.cat),
-                desc: txData.desc,
-                amount: txData.amount
-            };
+    const payload = {
+        action: action,
+        id: txData.id,
+        date: txData.date,
+        type: txData.type,
+        cat: txData.cat,
+        catName: getCategoryName(txData.type, txData.cat),
+        desc: txData.desc,
+        amount: txData.amount
+    };
 
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).then(() => {
-                console.log(`Synced (${action}) to Google Sheet successfully`);
-            }).catch(err => {
-                console.error('Error syncing to Google Sheet:', err);
-            });
-        }
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    }).then(() => {
+        console.log(`Synced (${action}) to Google Sheet successfully`);
+    }).catch(err => {
+        console.error('Error syncing to Google Sheet:', err);
+    });
+}
 
         function initDatePicker() {
             const yearSelect = document.getElementById('select-year');
