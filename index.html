@@ -157,7 +157,7 @@
         <!-- Recent Transactions Header -->
         <div class="d-flex justify-content-between align-items-center mb-2 px-1">
             <span class="fw-medium" style="font-size: 0.9rem;">ประวัติรายการล่าสุด</span>
-            <small class="text-muted" style="font-size: 0.75rem;">(แตะเพื่อแก้ไข)</small>
+            <small class="text-muted" style="font-size: 0.75rem;">(เรียงตามวันที่ล่าสุด)</small>
         </div>
 
         <!-- Transaction List -->
@@ -499,7 +499,6 @@
     function editTransaction(id) {
         clearSlipPreview();
 
-        // ค้นหา ID โดยแปลงชนิดข้อมูลเป็น String ป้องกัน Type Mismatch
         const tx = transactions.find(t => String(t.id) === String(id));
         if (!tx) return;
 
@@ -582,6 +581,18 @@
     function renderApp() {
         const listEl = document.getElementById('tx-list');
         listEl.innerHTML = '';
+
+        // -------------------------------------------------------------
+        // จัดเรียงรายการตามวันที่: วันที่ล่าสุดอยู่บน วันที่เก่าอยู่ล่างสุด
+        // -------------------------------------------------------------
+        transactions.sort((a, b) => {
+            const dateA = a.date || '';
+            const dateB = b.date || '';
+            if (dateB !== dateA) {
+                return dateB.localeCompare(dateA); // เรียงวันที่ใหม่ -> เก่า
+            }
+            return String(b.id).localeCompare(String(a.id)); // ถ้าวันที่เท่ากัน ให้เรียงตาม ID ใหม่ล่าสุดก่อน
+        });
 
         let totalBalance = 0;
         let monthIncome = 0;
