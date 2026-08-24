@@ -65,60 +65,117 @@
             color: #888;
             text-decoration: none;
             font-size: 0.85rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 50%;
         }
         .nav-item-btn.active {
             color: #6366f1;
             font-weight: bold;
+        }
+        .slip-preview-box {
+            max-height: 250px;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 2px dashed #6366f1;
+            background: #f8fafc;
+        }
+        .slip-preview-box img {
+            width: 100%;
+            object-fit: contain;
+            max-height: 240px;
         }
     </style>
 </head>
 <body>
 
 <div class="container py-3" style="max-width: 500px;">
-    <!-- Header Card -->
-    <div class="wallet-card mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="fw-bold"><i class="fa-solid fa-wallet me-2"></i>Smart Wallet</span>
-            <span class="badge bg-light text-dark rounded-pill px-3 py-2" id="current-month-badge">สิงหาคม 2569</span>
+    
+    <!-- Input ซ่อนไว้สำหรับแนบไฟล์รูปภาพสลิป -->
+    <input type="file" id="slip-file-input" accept="image/*" class="d-none" onchange="handleSlipUpload(event)">
+
+    <!-- ================= VIEW 1: หน้าหลัก ================= -->
+    <div id="main-view">
+        <!-- Header Card -->
+        <div class="wallet-card mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fw-bold"><i class="fa-solid fa-wallet me-2"></i>Smart Wallet</span>
+                <span class="badge bg-light text-dark rounded-pill px-3 py-2" id="current-month-badge">สิงหาคม 2569</span>
+            </div>
+            <div class="text-center my-3">
+                <div class="small opacity-75">ยอดเงินคงเหลือสุทธิ</div>
+                <h2 class="display-6 fw-bold mb-0" id="total-balance">฿0.00</h2>
+            </div>
+            <div class="row text-center mt-4 pt-3 border-top border-white-50">
+                <div class="col-6 border-end border-white-50">
+                    <div class="small opacity-75">รายรับเดือนนี้</div>
+                    <div class="fw-bold text-warning" id="month-income">+฿0.00</div>
+                </div>
+                <div class="col-6">
+                    <div class="small opacity-75">รายจ่ายเดือนนี้</div>
+                    <div class="fw-bold text-danger" id="month-expense">-฿0.00</div>
+                </div>
+            </div>
         </div>
-        <div class="text-center my-3">
-            <div class="small opacity-75">ยอดเงินคงเหลือสุทธิ</div>
-            <h2 class="display-6 fw-bold mb-0" id="total-balance">฿0.00</h2>
-        </div>
-        <div class="row text-center mt-4 pt-3 border-top border-white-50">
-            <div class="col-6 border-end border-white-50">
-                <div class="small opacity-75">รายรับเดือนนี้</div>
-                <div class="fw-bold text-warning" id="month-income">+฿0.00</div>
+
+        <!-- Quick Action Buttons -->
+        <div class="row g-2 mb-4">
+            <div class="col-6">
+                <button class="btn btn-light btn-action w-100 shadow-sm text-start" onclick="openAddModal()">
+                    <i class="fa-solid fa-plus text-primary me-2"></i><strong>เพิ่มรายการ</strong>
+                </button>
             </div>
             <div class="col-6">
-                <div class="small opacity-75">รายจ่ายเดือนนี้</div>
-                <div class="fw-bold text-danger" id="month-expense">-฿0.00</div>
+                <button class="btn btn-light btn-action w-100 shadow-sm text-start" onclick="triggerSlipUpload()">
+                    <i class="fa-solid fa-image text-success me-2"></i><strong>นำเข้ารูป / สลิป</strong>
+                </button>
             </div>
         </div>
-    </div>
 
-    <!-- Quick Action Buttons -->
-    <div class="row g-2 mb-4">
-        <div class="col-6">
-            <button class="btn btn-light btn-action w-100 shadow-sm text-start" onclick="openAddModal()">
-                <i class="fa-solid fa-plus text-primary me-2"></i><strong>เพิ่มรายการ</strong>
-            </button>
+        <!-- Recent Transactions Header -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold mb-0">ประวัติรายการล่าสุด</h6>
+            <small class="text-muted">(แตะเพื่อแก้ไข)</small>
         </div>
-        <div class="col-6">
-            <button class="btn btn-light btn-action w-100 shadow-sm text-start" onclick="alert('ฟังก์ชันนำเข้ารถ/สลิป กำลังพัฒนา')">
-                <i class="fa-solid fa-image text-success me-2"></i><strong>นำเข้ารถ / สลิป</strong>
-            </button>
+
+        <!-- Transaction List -->
+        <div id="tx-list"></div>
+    </div>
+
+    <!-- ================= VIEW 2: สรุปรายเดือน ================= -->
+    <div id="summary-view" class="d-none">
+        <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>สรุปภาพรวมรายเดือน</h5>
+        
+        <!-- ตัวเลือกเดือน -->
+        <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius: 16px;">
+            <label class="form-label small fw-bold text-muted mb-1">เลือกเดือนที่ต้องการดูสรุป</label>
+            <input type="month" id="summary-month-picker" class="form-control" onchange="renderSummary()">
+        </div>
+
+        <!-- การ์ดสรุปยอดเงินประจำเดือน -->
+        <div class="row g-2 mb-3">
+            <div class="col-6">
+                <div class="bg-success-subtle text-success p-3 rounded-4">
+                    <div class="small fw-bold opacity-75">รายรับรวม</div>
+                    <div class="h5 fw-bold mb-0" id="sum-income">+฿0.00</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="bg-danger-subtle text-danger p-3 rounded-4">
+                    <div class="small fw-bold opacity-75">รายจ่ายรวม</div>
+                    <div class="h5 fw-bold mb-0" id="sum-expense">-฿0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- รายละเอียดแยกตามหมวดหมู่ -->
+        <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius: 16px;">
+            <h6 class="fw-bold mb-3">สัดส่วนรายจ่ายแยกตามหมวดหมู่</h6>
+            <div id="summary-category-list"></div>
         </div>
     </div>
 
-    <!-- Recent Transactions Header -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="fw-bold mb-0">ประวัติรายการล่าสุด</h6>
-        <small class="text-muted">(แตะเพื่อแก้ไข)</small>
-    </div>
-
-    <!-- Transaction List -->
-    <div id="tx-list"></div>
 </div>
 
 <!-- Modal สำหรับ เพิ่ม / แก้ไข รายการ -->
@@ -130,6 +187,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- กล่องแสดงตัวอย่างรูปสลิป -->
+                <div id="slip-preview-container" class="mb-3 d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="fw-bold text-primary"><i class="fa-solid fa-file-invoice me-1"></i>รูปสลิปแนบ</small>
+                        <button type="button" class="btn-close btn-sm" onclick="clearSlipPreview()"></button>
+                    </div>
+                    <div class="slip-preview-box text-center p-1">
+                        <img id="slip-preview-img" src="" alt="Slip Preview">
+                    </div>
+                </div>
+
                 <form id="txForm" onsubmit="handleFormSubmit(event)">
                     <input type="hidden" id="tx-id">
 
@@ -157,7 +225,7 @@
                     <!-- รายละเอียด / ชื่อรายการ -->
                     <div class="mb-3">
                         <label for="tx-desc" class="form-label fw-bold">รายการ / คำอธิบาย</label>
-                        <input type="text" id="tx-desc" class="form-control" placeholder="เช่น ก๋วยเตี๋ยว, ค่าน้ำมัน" required>
+                        <input type="text" id="tx-desc" class="form-control" placeholder="เช่น สแกนจากสลิป, ก๋วยเตี๋ยว" required>
                     </div>
 
                     <!-- จำนวนเงิน -->
@@ -183,22 +251,21 @@
 
 <!-- Bottom Navigation Bar -->
 <div class="bottom-nav">
-    <a href="#" class="nav-item-btn active">
+    <button type="button" class="nav-item-btn active" id="nav-home" onclick="switchTab('home')">
         <i class="fa-solid fa-house d-block mb-1"></i>หน้าหลัก
-    </a>
-    <a href="#" class="nav-item-btn">
+    </button>
+    <button type="button" class="nav-item-btn" id="nav-summary" onclick="switchTab('summary')">
         <i class="fa-solid fa-chart-pie d-block mb-1"></i>สรุปรายเดือน
-    </a>
+    </button>
 </div>
 
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // 🔗 URL ของ Google Apps Script (ตรวจสอบให้แน่ใจว่าเป็น Web App URL ปัจจุบันของคุณ)
+    // 🔗 URL ของ Google Apps Script
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLma3r_07TUwPC9pGD2ec55651Q9yDbxfDFWCIyeXluUmH5FtANFoLwHyu-G06tT/exec';
 
-    // หมวดหมู่รายการ
     const categories = {
         expense: [
             { id: 'food', name: 'อาหาร & เครื่องดื่ม', icon: '🍔' },
@@ -225,13 +292,128 @@
     });
 
     // -------------------------------------------------------------
-    // ฟังก์ชันส่งข้อมูลไปยัง Google Sheet (แก้ไข CORS & Header แล้ว)
+    // ฟังก์ชันนำเข้าและอ่านรูปสลิป (Slip Reader)
     // -------------------------------------------------------------
-    function syncToGoogleSheet(txData, action = 'create') {
-        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.trim() === '') {
-            console.warn('ยังไม่ได้ระบุ GOOGLE_SCRIPT_URL');
+    function triggerSlipUpload() {
+        document.getElementById('slip-file-input').click();
+    }
+
+    function handleSlipUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // แสดงรูปตัวอย่างสลิปใน Modal
+            document.getElementById('slip-preview-img').src = e.target.result;
+            document.getElementById('slip-preview-container').classList.remove('d-none');
+
+            // เตรียมแบบฟอร์มบันทึก
+            openAddModal();
+            document.getElementById('modalTitle').textContent = 'บันทึกจากรูปสลิป';
+            document.getElementById('tx-desc').value = 'สแกนจากสลิป/รูปถ่าย';
+            
+            // โฟกัสไปที่ช่องจำนวนเงินทันทีเพื่อให้พิมพ์ได้สะดวกขณะดูรูป
+            setTimeout(() => {
+                document.getElementById('tx-amount').focus();
+            }, 500);
+        };
+        reader.readAsDataURL(file);
+        event.target.value = ''; // รีเซ็ต input file
+    }
+
+    function clearSlipPreview() {
+        document.getElementById('slip-preview-container').classList.add('d-none');
+        document.getElementById('slip-preview-img').src = '';
+    }
+
+    // -------------------------------------------------------------
+    // ฟังก์ชันสลับหน้า แท็บเมนู (Tab Switching)
+    // -------------------------------------------------------------
+    function switchTab(tab) {
+        const mainView = document.getElementById('main-view');
+        const summaryView = document.getElementById('summary-view');
+        const navHome = document.getElementById('nav-home');
+        const navSummary = document.getElementById('nav-summary');
+
+        if (tab === 'home') {
+            mainView.classList.remove('d-none');
+            summaryView.classList.add('d-none');
+            navHome.classList.add('active');
+            navSummary.classList.remove('active');
+        } else if (tab === 'summary') {
+            mainView.classList.add('d-none');
+            summaryView.classList.remove('d-none');
+            navHome.classList.remove('active');
+            navSummary.classList.add('active');
+
+            const picker = document.getElementById('summary-month-picker');
+            if (!picker.value) {
+                picker.value = new Date().toISOString().slice(0, 7);
+            }
+            renderSummary();
+        }
+    }
+
+    // -------------------------------------------------------------
+    // ฟังก์ชันประมวลผลสรุปรายเดือน
+    // -------------------------------------------------------------
+    function renderSummary() {
+        const selectedMonth = document.getElementById('summary-month-picker').value;
+        const catListEl = document.getElementById('summary-category-list');
+        catListEl.innerHTML = '';
+
+        if (!selectedMonth) return;
+
+        let totalInc = 0;
+        let totalExp = 0;
+        const expTotals = {};
+
+        const monthTx = transactions.filter(t => t.date && t.date.startsWith(selectedMonth));
+
+        monthTx.forEach(tx => {
+            const amt = Number(tx.amount);
+            if (tx.type === 'expense') {
+                totalExp += amt;
+                expTotals[tx.cat] = (expTotals[tx.cat] || 0) + amt;
+            } else {
+                totalInc += amt;
+            }
+        });
+
+        document.getElementById('sum-income').textContent = `+฿${totalInc.toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+        document.getElementById('sum-expense').textContent = `-฿${totalExp.toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+
+        if (totalExp === 0) {
+            catListEl.innerHTML = `<div class="text-center text-muted py-3">ไม่มีรายการรายจ่ายในเดือนนี้</div>`;
             return;
         }
+
+        Object.keys(expTotals).forEach(catId => {
+            const catAmt = expTotals[catId];
+            const percent = ((catAmt / totalExp) * 100).toFixed(1);
+            const catObj = categories.expense.find(c => c.id === catId) || { icon: '📦', name: catId };
+
+            const html = `
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="small fw-bold">${catObj.icon} ${catObj.name}</span>
+                        <span class="small fw-bold">฿${catAmt.toLocaleString('th-TH', { minimumFractionDigits: 2 })} (${percent}%)</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: ${percent}%"></div>
+                    </div>
+                </div>
+            `;
+            catListEl.insertAdjacentHTML('beforeend', html);
+        });
+    }
+
+    // -------------------------------------------------------------
+    // ฟังก์ชันส่งข้อมูลไปยัง Google Sheet
+    // -------------------------------------------------------------
+    function syncToGoogleSheet(txData, action = 'create') {
+        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.trim() === '') return;
 
         const payload = {
             action: action,
@@ -280,8 +462,6 @@
         document.getElementById('txForm').reset();
         document.getElementById('tx-id').value = '';
         document.getElementById('type-expense').checked = true;
-        
-        // กำหนดวันที่ปัจจุบันเป็นค่าเริ่มต้น (YYYY-MM-DD)
         document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
         
         updateCategoryOptions();
@@ -290,6 +470,7 @@
     }
 
     function editTransaction(id) {
+        clearSlipPreview();
         const tx = transactions.find(t => t.id === id);
         if (!tx) return;
 
@@ -333,6 +514,7 @@
             syncToGoogleSheet(txData, 'create');
         }
 
+        clearSlipPreview();
         saveAndRender();
         modalInstance.hide();
     }
@@ -347,6 +529,7 @@
             
             if (txData) syncToGoogleSheet(txData, 'delete');
             
+            clearSlipPreview();
             saveAndRender();
             modalInstance.hide();
         }
@@ -355,6 +538,9 @@
     function saveAndRender() {
         localStorage.setItem('smart_wallet_tx', JSON.stringify(transactions));
         renderApp();
+        if (!document.getElementById('summary-view').classList.contains('d-none')) {
+            renderSummary();
+        }
     }
 
     function renderApp() {
