@@ -42,7 +42,6 @@
             min-height: 100vh;
         }
 
-        /* Container Limit for Mobile Viewport */
         .app-container {
             width: 100%;
             max-width: 440px;
@@ -56,7 +55,6 @@
             padding-bottom: 90px;
         }
 
-        /* Header Layout */
         .header {
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
@@ -136,7 +134,6 @@
         .text-green { color: #4ade80; }
         .text-red { color: #f87171; }
 
-        /* Main Content Body */
         .content {
             padding: 16px;
             flex: 1;
@@ -203,6 +200,12 @@
             align-items: center;
             justify-content: space-between;
             border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .transaction-card:active {
+            background: #f1f5f9;
         }
 
         .tx-info {
@@ -238,6 +241,12 @@
             color: var(--text-sub);
         }
 
+        .tx-right-side {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .tx-amount {
             font-weight: 700;
             font-size: 0.9rem;
@@ -247,29 +256,30 @@
         .tx-amount.expense { color: var(--expense); }
         .tx-amount.income { color: var(--income); }
 
-        .month-picker {
+        .edit-hint {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            opacity: 0.6;
+        }
+
+        .month-picker-group {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--card-bg);
-            padding: 8px 14px;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .month-picker-select {
+            flex: 1;
+            padding: 10px 12px;
             border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
-            margin-bottom: 14px;
-        }
-
-        .btn-month {
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            color: var(--text-sub);
-            cursor: pointer;
-            padding: 4px 8px;
-        }
-
-        .current-month {
-            font-weight: 600;
+            background: var(--card-bg);
             font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .category-item {
@@ -301,7 +311,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Bottom Fixed Navigation Bar */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -338,11 +347,8 @@
             font-weight: 700;
         }
 
-        .nav-icon {
-            font-size: 1.1rem;
-        }
+        .nav-icon { font-size: 1.1rem; }
 
-        /* Form Modal Overlay */
         .modal {
             position: fixed;
             top: 0;
@@ -379,9 +385,7 @@
             transform: translateY(0);
         }
 
-        .form-group {
-            margin-bottom: 12px;
-        }
+        .form-group { margin-bottom: 12px; }
 
         .form-label {
             display: block;
@@ -400,8 +404,22 @@
             outline: none;
         }
 
-        .form-input:focus, .form-select:focus {
-            border-color: var(--primary);
+        .split-btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .btn-split {
+            flex: 1;
+            padding: 6px 10px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         .btn-submit {
@@ -414,7 +432,21 @@
             font-weight: 600;
             font-size: 0.95rem;
             cursor: pointer;
+            margin-top: 12px;
+        }
+
+        .btn-delete {
+            width: 100%;
+            background: var(--expense-bg);
+            color: var(--expense);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
             margin-top: 8px;
+            display: none;
         }
 
         .status-badge {
@@ -424,13 +456,8 @@
             margin-top: 6px;
         }
 
-        .tab-page {
-            display: none;
-        }
-
-        .tab-page.active {
-            display: block;
-        }
+        .tab-page { display: none; }
+        .tab-page.active { display: block; }
     </style>
 </head>
 <body>
@@ -440,7 +467,7 @@
         <div class="header">
             <div class="header-top">
                 <div class="app-title">💳 Smart Wallet</div>
-                <div class="month-tag">สิงหาคม 2569</div>
+                <div class="month-tag" id="header-month-tag">สิงหาคม 2569</div>
             </div>
             <div class="balance-card">
                 <div class="balance-label">ยอดเงินคงเหลือสุทธิ</div>
@@ -467,7 +494,6 @@
                     <button class="btn-action" onclick="openModal()">
                         <span>➕</span> เพิ่มรายการ
                     </button>
-                    <!-- ปุ่มเปิดคลังรูปภาพ/กล้องถ่ายรูปในโทรศัพท์ -->
                     <button class="btn-action btn-scan" onclick="document.getElementById('file-input').click()">
                         <span>🖼️</span> นำเข้ารูป / สลิป
                     </button>
@@ -477,28 +503,37 @@
 
                 <div class="section-header">
                     <div class="section-title">ประวัติรายการล่าสุด</div>
+                    <span style="font-size:0.75rem; color:var(--text-sub);">(แตะเพื่อแก้ไข)</span>
                 </div>
 
-                <div class="list-container" id="recent-list">
-                    <!-- Dynamic Transaction Items -->
-                </div>
+                <div class="list-container" id="recent-list"></div>
             </div>
 
             <!-- Tab 2: Monthly Summary Page -->
             <div id="tab-summary" class="tab-page">
-                <div class="month-picker">
-                    <button class="btn-month" onclick="changeMonth(-1)">❮</button>
-                    <div class="current-month" id="display-month">สิงหาคม 2569</div>
-                    <button class="btn-month" onclick="changeMonth(1)">❯</button>
+                <div class="month-picker-group">
+                    <select class="month-picker-select" id="select-month" onchange="renderMonthlySummary()">
+                        <option value="1">มกราคม</option>
+                        <option value="2">กุมภาพันธ์</option>
+                        <option value="3">มีนาคม</option>
+                        <option value="4">เมษายน</option>
+                        <option value="5">พฤษภาคม</option>
+                        <option value="6">มิถุนายน</option>
+                        <option value="7">กรกฎาคม</option>
+                        <option value="8">สิงหาคม</option>
+                        <option value="9">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
+                    <select class="month-picker-select" id="select-year" onchange="renderMonthlySummary()"></select>
                 </div>
 
                 <div class="section-header">
                     <div class="section-title">สัดส่วนรายจ่ายแยกหมวดหมู่</div>
                 </div>
 
-                <div id="category-summary-list">
-                    <!-- Dynamic Category Progress Bars -->
-                </div>
+                <div id="category-summary-list"></div>
             </div>
 
         </div>
@@ -516,11 +551,11 @@
         </nav>
     </div>
 
-    <!-- Add Transaction Modal -->
+    <!-- Modal -->
     <div class="modal" id="tx-modal">
         <div class="modal-content">
             <div class="section-header" style="margin-bottom: 12px;">
-                <div class="section-title">บันทึกรายการใหม่</div>
+                <div class="section-title" id="modal-title">บันทึกรายการใหม่</div>
                 <button onclick="closeModal()" style="background:none; border:none; font-size: 1.2rem; cursor:pointer;">✕</button>
             </div>
             
@@ -534,9 +569,7 @@
 
             <div class="form-group">
                 <label class="form-label">หมวดหมู่</label>
-                <select class="form-select" id="tx-category">
-                    <!-- Filled by JS -->
-                </select>
+                <select class="form-select" id="tx-category"></select>
             </div>
 
             <div class="form-group">
@@ -547,14 +580,22 @@
             <div class="form-group">
                 <label class="form-label">จำนวนเงิน (บาท)</label>
                 <input type="number" step="0.01" class="form-input" id="tx-amount" placeholder="0.00">
+                
+                <div class="split-btn-group">
+                    <button type="button" class="btn-split" onclick="divideAmount(2)">✂️ หาร 2 (คนละครึ่ง)</button>
+                    <button type="button" class="btn-split" onclick="divideAmount(3)">✂️ หาร 3</button>
+                </div>
             </div>
 
             <button class="btn-submit" onclick="saveTransaction()">บันทึกรายการ</button>
+            <button class="btn-delete" id="btn-delete" onclick="deleteTransaction()">🗑️ ลบรายการนี้</button>
         </div>
     </div>
 
     <script>
-        // Categories Definition
+        // 🔴 นำ Web App URL ที่ได้จาก Google Apps Script มาวางแทนที่บรรทัดนี้
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSe-uewP7w_erElHLEPFho5xCv2ViX3n1eLIMklY0UVJaGkr4Dq1aBA_vA0L9CZlKt/exec';
+
         const categories = {
             expense: [
                 { id: 'food', name: 'อาหาร & เครื่องดื่ม', icon: '🍔', color: '#f59e0b' },
@@ -572,8 +613,62 @@
             ]
         };
 
-        // Local Storage State
         let transactions = JSON.parse(localStorage.getItem('smart_wallet_tx')) || [];
+        let editingTxId = null;
+
+        function getCategoryName(type, catId) {
+            const list = categories[type] || [];
+            const found = list.find(c => c.id === catId);
+            return found ? `${found.icon} ${found.name}` : catId;
+        }
+
+        // ฟังก์ชันส่งข้อมูลไปยัง Google Sheet
+        function syncToGoogleSheet(txData, action = 'create') {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('YOUR_SCRIPT_ID')) {
+                console.log('ยังไม่ได้ระบุ GOOGLE_SCRIPT_URL');
+                return;
+            }
+
+            const payload = {
+                action: action,
+                id: txData.id,
+                date: txData.date,
+                type: txData.type,
+                cat: txData.cat,
+                catName: getCategoryName(txData.type, txData.cat),
+                desc: txData.desc,
+                amount: txData.amount
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                console.log(`Synced (${action}) to Google Sheet successfully`);
+            }).catch(err => {
+                console.error('Error syncing to Google Sheet:', err);
+            });
+        }
+
+        function initDatePicker() {
+            const yearSelect = document.getElementById('select-year');
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYearBE = now.getFullYear() + 543;
+
+            yearSelect.innerHTML = '';
+            for (let y = currentYearBE - 5; y <= currentYearBE + 5; y++) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = `พ.ศ. ${y}`;
+                if (y === currentYearBE) opt.selected = true;
+                yearSelect.appendChild(opt);
+            }
+
+            document.getElementById('select-month').value = currentMonth;
+        }
 
         function updateCategories() {
             const type = document.getElementById('tx-type').value;
@@ -582,6 +677,25 @@
             categories[type].forEach(c => {
                 select.innerHTML += `<option value="${c.id}">${c.icon} ${c.name}</option>`;
             });
+        }
+
+        function divideAmount(num) {
+            const amountInput = document.getElementById('tx-amount');
+            const descInput = document.getElementById('tx-desc');
+            let val = parseFloat(amountInput.value);
+
+            if (isNaN(val) || val <= 0) {
+                alert('กรุณากรอกหรือสแกนจำนวนเงินก่อนกดหาร');
+                return;
+            }
+
+            const dividedVal = (val / num).toFixed(2);
+            amountInput.value = dividedVal;
+
+            const tag = ` (หาร ${num})`;
+            if (!descInput.value.includes('(หาร ')) {
+                descInput.value = descInput.value.trim() + tag;
+            }
         }
 
         function renderUI() {
@@ -599,14 +713,13 @@
                 recentList.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8; font-size:0.85rem;">ยังไม่มีรายการบันทึก</div>';
             }
 
-            // Render Recent Transactions
             transactions.slice().reverse().forEach((tx, idx) => {
                 const catInfo = [...categories.expense, ...categories.income].find(c => c.id === tx.cat) || { icon: '📝', color: '#64748b' };
                 const isIncome = tx.type === 'income';
 
                 if (idx < 10) {
                     recentList.innerHTML += `
-                        <div class="transaction-card">
+                        <div class="transaction-card" onclick="editTransaction(${tx.id})">
                             <div class="tx-info">
                                 <div class="tx-icon" style="background:${catInfo.color}15; color:${catInfo.color};">
                                     ${catInfo.icon}
@@ -616,8 +729,11 @@
                                     <span class="tx-date">${tx.date}</span>
                                 </div>
                             </div>
-                            <div class="tx-amount ${tx.type}">
-                                ${isIncome ? '+' : '-'}฿${tx.amount.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+                            <div class="tx-right-side">
+                                <div class="tx-amount ${tx.type}">
+                                    ${isIncome ? '+' : '-'}฿${tx.amount.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+                                </div>
+                                <span class="edit-hint">✏️</span>
                             </div>
                         </div>
                     `;
@@ -640,23 +756,32 @@
             const catSummaryList = document.getElementById('category-summary-list');
             catSummaryList.innerHTML = '';
 
-            const expenses = transactions.filter(t => t.type === 'expense');
-            const totalExp = expenses.reduce((sum, t) => sum + t.amount, 0);
+            const selMonth = parseInt(document.getElementById('select-month').value, 10);
+            const selYearBE = parseInt(document.getElementById('select-year').value, 10);
+            const selYearAD = selYearBE - 543;
+
+            const filteredExpenses = transactions.filter(t => {
+                if (t.type !== 'expense') return false;
+                const [y, m] = t.date.split('-').map(Number);
+                return y === selYearAD && m === selMonth;
+            });
+
+            const totalExp = filteredExpenses.reduce((sum, t) => sum + t.amount, 0);
 
             if (totalExp === 0) {
-                catSummaryList.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">ยังไม่มีข้อมูลค่าใช้จ่าย</div>';
+                catSummaryList.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8; font-size:0.85rem;">ไม่มีข้อมูลค่าใช้จ่ายในเดือนนี้</div>';
                 return;
             }
 
             categories.expense.forEach(cat => {
-                const catTotal = expenses.filter(t => t.cat === cat.id).reduce((sum, t) => sum + t.amount, 0);
+                const catTotal = filteredExpenses.filter(t => t.cat === cat.id).reduce((sum, t) => sum + t.amount, 0);
                 if (catTotal > 0) {
                     const percent = Math.round((catTotal / totalExp) * 100);
                     catSummaryList.innerHTML += `
                         <div class="category-item">
                             <div class="cat-header">
                                 <span>${cat.icon} ${cat.name} (${percent}%)</span>
-                                <span style="color:var(--expense);">฿${catTotal.toLocaleString()}</span>
+                                <span style="color:var(--expense);">฿${catTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
                             </div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: ${percent}%; background: ${cat.color};"></div>
@@ -668,7 +793,27 @@
         }
 
         function openModal() {
+            editingTxId = null;
+            document.getElementById('modal-title').innerText = 'บันทึกรายการใหม่';
+            document.getElementById('tx-desc').value = '';
+            document.getElementById('tx-amount').value = '';
+            document.getElementById('btn-delete').style.display = 'none';
             updateCategories();
+            document.getElementById('tx-modal').classList.add('active');
+        }
+
+        function editTransaction(id) {
+            const tx = transactions.find(t => t.id === id);
+            if (!tx) return;
+
+            editingTxId = id;
+            document.getElementById('modal-title').innerText = 'แก้ไขรายการ';
+            document.getElementById('tx-type').value = tx.type;
+            updateCategories();
+            document.getElementById('tx-category').value = tx.cat;
+            document.getElementById('tx-desc').value = tx.desc;
+            document.getElementById('tx-amount').value = tx.amount;
+            document.getElementById('btn-delete').style.display = 'block';
             document.getElementById('tx-modal').classList.add('active');
         }
 
@@ -687,13 +832,45 @@
                 return;
             }
 
-            const today = new Date().toISOString().split('T')[0];
-            transactions.push({ id: Date.now(), desc, amount, type, cat, date: today });
-            
-            document.getElementById('tx-desc').value = '';
-            document.getElementById('tx-amount').value = '';
+            if (editingTxId) {
+                const index = transactions.findIndex(t => t.id === editingTxId);
+                if (index !== -1) {
+                    transactions[index].desc = desc;
+                    transactions[index].amount = amount;
+                    transactions[index].type = type;
+                    transactions[index].cat = cat;
+
+                    // Sync การอัปเดตลง Google Sheet
+                    syncToGoogleSheet(transactions[index], 'update');
+                }
+            } else {
+                const today = new Date().toISOString().split('T')[0];
+                const newTx = { id: Date.now(), desc, amount, type, cat, date: today };
+                transactions.push(newTx);
+
+                // Sync บันทึกรายการใหม่ลง Google Sheet
+                syncToGoogleSheet(newTx, 'create');
+            }
+
             closeModal();
             renderUI();
+        }
+
+        function deleteTransaction() {
+            if (!editingTxId) return;
+
+            if (confirm('คุณต้องการลบรายการนี้ใช่หรือไม่?')) {
+                const targetTx = transactions.find(t => t.id === editingTxId);
+                transactions = transactions.filter(t => t.id !== editingTxId);
+
+                if (targetTx) {
+                    // Sync การลบลง Google Sheet
+                    syncToGoogleSheet(targetTx, 'delete');
+                }
+
+                closeModal();
+                renderUI();
+            }
         }
 
         async function handleSlipScan(e) {
@@ -709,7 +886,6 @@
                 await worker.terminate();
 
                 const text = ret.data.text;
-                // หาตัวเลขทศนิยม 2 ตำแหน่งในข้อความ (เช่น 150.00 หรือ 1,250.50)
                 const matches = text.match(/\b\d{1,3}(,\d{3})*\.\d{2}\b/g);
 
                 if (matches && matches.length > 0) {
@@ -731,21 +907,8 @@
             } catch (err) {
                 status.innerText = '❌ เกิดข้อผิดพลาดในการสแกนรูป';
             }
-            syncToGoogleSheet(newTx);
         }
-        // วาง URL ที่ได้จาก Google Apps Script ที่นี่
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsvv36cMO5SAB5NTh_NyhvbnXMthL99IB4VYbF4lP7cfR16BR3IaFlVZB68y-h4gkw/exec';
 
-        function syncToGoogleSheet(txData) {
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('https://script.google.com/macros/s/AKfycbxsvv36cMO5SAB5NTh_NyhvbnXMthL99IB4VYbF4lP7cfR16BR3IaFlVZB68y-h4gkw/exec')) return;
-
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(txData)
-            }).catch(err => console.error('Error syncing to Google Sheet:', err));
-        }
         function switchTab(tab) {
             document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -754,13 +917,7 @@
             document.getElementById(`nav-${tab}`).classList.add('active');
         }
 
-        function changeMonth(dir) {
-            const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-            let current = 7; 
-            current = (current + dir + 12) % 12;
-            document.getElementById('display-month').innerText = `${months[current]} 2569`;
-        }
-
+        initDatePicker();
         renderUI();
     </script>
 </body>
