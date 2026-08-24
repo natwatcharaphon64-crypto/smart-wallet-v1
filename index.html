@@ -731,8 +731,21 @@
             } catch (err) {
                 status.innerText = '❌ เกิดข้อผิดพลาดในการสแกนรูป';
             }
+            syncToGoogleSheet(newTx);
         }
+        // วาง URL ที่ได้จาก Google Apps Script ที่นี่
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsvv36cMO5SAB5NTh_NyhvbnXMthL99IB4VYbF4lP7cfR16BR3IaFlVZB68y-h4gkw/exec';
 
+        function syncToGoogleSheet(txData) {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('https://script.google.com/macros/s/AKfycbxsvv36cMO5SAB5NTh_NyhvbnXMthL99IB4VYbF4lP7cfR16BR3IaFlVZB68y-h4gkw/exec')) return;
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(txData)
+            }).catch(err => console.error('Error syncing to Google Sheet:', err));
+        }
         function switchTab(tab) {
             document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
