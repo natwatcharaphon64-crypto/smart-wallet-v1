@@ -34,7 +34,7 @@
         }
         .btn-action {
             border-radius: 12px;
-            padding: 10px 12px;
+            padding: 10px 14px;
             font-size: 0.9rem;
             font-weight: 500;
         }
@@ -54,15 +54,15 @@
             background-color: #f1f5f9;
         }
         .tx-icon {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             background-color: #f1f5f9;
-            margin-right: 10px;
+            margin-right: 14px; /* เพิ่มระยะห่างวงกลมไอคอนกับข้อความ */
             flex-shrink: 0;
         }
         .bottom-nav {
@@ -107,6 +107,16 @@
         .form-label, .form-control, .form-select, .btn {
             font-size: 0.9rem;
         }
+        /* ย้ายระยะห่างระหว่างไอคอนข้อความทั่วไป */
+        .icon-gap-sm {
+            margin-right: 6px;
+        }
+        .icon-gap {
+            margin-right: 8px;
+        }
+        .icon-gap-lg {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -121,7 +131,7 @@
         <!-- Header Card -->
         <div class="wallet-card mb-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="fw-medium small"><i class="fa-solid fa-wallet me-2"></i>Smart Wallet</span>
+                <span class="fw-medium small"><i class="fa-solid fa-wallet icon-gap"></i>Smart Wallet</span>
                 <span class="badge bg-light text-dark rounded-pill px-2.5 py-1.5" style="font-size: 0.75rem; font-weight: 400;" id="current-month-badge">สิงหาคม 2569</span>
             </div>
             <div class="text-center my-2">
@@ -144,12 +154,12 @@
         <div class="row g-2 mb-3">
             <div class="col-6">
                 <button class="btn btn-light btn-action w-100 shadow-sm text-start" onclick="openAddModal()">
-                    <i class="fa-solid fa-plus text-primary me-1.5"></i><span>เพิ่มรายการ</span>
+                    <i class="fa-solid fa-plus text-primary icon-gap"></i><span>เพิ่มรายการ</span>
                 </button>
             </div>
             <div class="col-6">
                 <button class="btn btn-light btn-action w-100 shadow-sm text-start" onclick="triggerSlipUpload()">
-                    <i class="fa-solid fa-image text-success me-1.5"></i><span>นำเข้ารูป / สลิป</span>
+                    <i class="fa-solid fa-image text-success icon-gap"></i><span>นำเข้ารูป / สลิป</span>
                 </button>
             </div>
         </div>
@@ -166,7 +176,7 @@
 
     <!-- ================= VIEW 2: สรุปรายเดือน ================= -->
     <div id="summary-view" class="d-none">
-        <h6 class="fw-medium mb-3"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>สรุปภาพรวมรายเดือน</h6>
+        <h6 class="fw-medium mb-3"><i class="fa-solid fa-chart-pie icon-gap text-primary"></i>สรุปภาพรวมรายเดือน</h6>
         
         <!-- ตัวเลือกเดือน -->
         <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius: 14px;">
@@ -211,7 +221,7 @@
                 <!-- กล่องแสดงตัวอย่างรูปสลิป -->
                 <div id="slip-preview-container" class="mb-3 d-none">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <small class="fw-medium text-primary" style="font-size: 0.8rem;"><i class="fa-solid fa-file-invoice me-1"></i>รูปสลิปแนบ</small>
+                        <small class="fw-medium text-primary" style="font-size: 0.8rem;"><i class="fa-solid fa-file-invoice icon-gap-sm"></i>รูปสลิปแนบ</small>
                         <button type="button" class="btn-close btn-sm" onclick="clearSlipPreview()"></button>
                     </div>
                     <div class="slip-preview-box text-center p-1">
@@ -225,10 +235,10 @@
                     <!-- ประเภท รายจ่าย/รายรับ -->
                     <div class="btn-group w-100 mb-3" role="group">
                         <input type="radio" class="btn-check" name="type-select" id="type-expense" value="expense" checked onchange="updateCategoryOptions()">
-                        <label class="btn btn-outline-danger py-2" for="type-expense"><i class="fa-solid fa-minus me-1"></i>รายจ่าย</label>
+                        <label class="btn btn-outline-danger py-2" for="type-expense"><i class="fa-solid fa-minus icon-gap"></i>รายจ่าย</label>
 
                         <input type="radio" class="btn-check" name="type-select" id="type-income" value="income" onchange="updateCategoryOptions()">
-                        <label class="btn btn-outline-success py-2" for="type-income"><i class="fa-solid fa-plus me-1"></i>รายรับ</label>
+                        <label class="btn btn-outline-success py-2" for="type-income"><i class="fa-solid fa-plus icon-gap"></i>รายรับ</label>
                     </div>
 
                     <!-- ช่องเลือกวันที่บันทึก -->
@@ -257,10 +267,10 @@
 
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-2">
                         <button type="button" id="btn-delete" class="btn btn-outline-danger btn-sm d-none" onclick="confirmDelete()">
-                            <i class="fa-solid fa-trash me-1"></i>ลบ
+                            <i class="fa-solid fa-trash icon-gap-sm"></i>ลบ
                         </button>
                         <div class="ms-auto">
-                            <button type="button" class="btn btn-light btn-sm me-1.5 px-3" data-bs-dismiss="modal">ยกเลิก</button>
+                            <button type="button" class="btn btn-light btn-sm me-2 px-3" data-bs-dismiss="modal">ยกเลิก</button>
                             <button type="submit" class="btn btn-primary btn-sm px-4">บันทึก</button>
                         </div>
                     </div>
@@ -273,10 +283,10 @@
 <!-- Bottom Navigation Bar -->
 <div class="bottom-nav">
     <button type="button" class="nav-item-btn active" id="nav-home" onclick="switchTab('home')">
-        <i class="fa-solid fa-house d-block mb-1" style="font-size: 1rem;"></i>หน้าหลัก
+        <i class="fa-solid fa-house d-block mb-1.5" style="font-size: 1rem;"></i>หน้าหลัก
     </button>
     <button type="button" class="nav-item-btn" id="nav-summary" onclick="switchTab('summary')">
-        <i class="fa-solid fa-chart-pie d-block mb-1" style="font-size: 1rem;"></i>สรุปรายเดือน
+        <i class="fa-solid fa-chart-pie d-block mb-1.5" style="font-size: 1rem;"></i>สรุปรายเดือน
     </button>
 </div>
 
@@ -425,7 +435,7 @@
             const html = `
                 <div class="mb-2.5">
                     <div class="d-flex justify-content-between mb-1" style="font-size: 0.82rem;">
-                        <span class="fw-medium">${catObj.icon} ${catObj.name}</span>
+                        <span class="fw-medium"><span class="me-2">${catObj.icon}</span>${catObj.name}</span>
                         <span class="fw-medium">฿${catAmt.toLocaleString('th-TH', { minimumFractionDigits: 2 })} (${percent}%)</span>
                     </div>
                     <div class="progress" style="height: 6px;">
@@ -479,7 +489,7 @@
         (categories[selectedType] || []).forEach(cat => {
             const opt = document.createElement('option');
             opt.value = cat.id;
-            opt.textContent = `${cat.icon} ${cat.name}`;
+            opt.textContent = `${cat.icon}  ${cat.name}`;
             catSelect.appendChild(opt);
         });
     }
@@ -582,16 +592,14 @@
         const listEl = document.getElementById('tx-list');
         listEl.innerHTML = '';
 
-        // -------------------------------------------------------------
         // จัดเรียงรายการตามวันที่: วันที่ล่าสุดอยู่บน วันที่เก่าอยู่ล่างสุด
-        // -------------------------------------------------------------
         transactions.sort((a, b) => {
             const dateA = a.date || '';
             const dateB = b.date || '';
             if (dateB !== dateA) {
-                return dateB.localeCompare(dateA); // เรียงวันที่ใหม่ -> เก่า
+                return dateB.localeCompare(dateA);
             }
-            return String(b.id).localeCompare(String(a.id)); // ถ้าวันที่เท่ากัน ให้เรียงตาม ID ใหม่ล่าสุดก่อน
+            return String(b.id).localeCompare(String(a.id));
         });
 
         let totalBalance = 0;
@@ -630,7 +638,7 @@
                         <div class="fw-medium ${isExpense ? 'text-danger' : 'text-success'}" style="font-size: 0.92rem;">
                             ${isExpense ? '-' : '+'}฿${amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}
                         </div>
-                        <i class="fa-solid fa-pen text-muted small ms-1" style="font-size: 0.7rem;"></i>
+                        <i class="fa-solid fa-pen text-muted small ms-2" style="font-size: 0.7rem;"></i>
                     </div>
                 </div>
             `;
